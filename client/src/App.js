@@ -22,6 +22,7 @@ import MyExamsPage from "./pages/Teacher/MyExamsPage";
 import MyLessonsPage from "./pages/Teacher/MyLessonsPage";
 import TakeClassicExamPage from "./pages/Student/TakeClassicExamPage";
 import CheckAnswersPage from "./pages/Teacher/CheckAnsversPage";
+import StudentGradesPage from "./pages/Student/StudentGradesPage";
 
 // Error Boundary bileşeni
 class ErrorBoundary extends React.Component {
@@ -106,6 +107,8 @@ function App() {
           <Route path="/my-exams" element={<MyExamsPage />} />
 
           <Route path="/create-exam" element={<CreateExamPage />} />
+
+          <Route path="/grades" element={<StudentGradesPage />} />
 
           <Route
             path="/student-performance/:studentId"

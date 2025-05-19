@@ -26,10 +26,13 @@ function StudentDashboard() {
           <span>Sınavlara Katıl</span>
         </Link>
 
-        <div className="flex items-center space-x-2 text-lg hover:text-yellow-300 cursor-pointer transition">
+        <Link
+          to="/grades"
+          className="flex items-center space-x-2 text-lg hover:text-yellow-300 cursor-pointer transition"
+        >
           <StarIcon className="w-6 h-6" />
           <span>Notlarım</span>
-        </div>
+        </Link>
       </div>
     </div>
   );

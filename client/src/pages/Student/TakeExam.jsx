@@ -55,7 +55,7 @@ function TakeExam() {
       result
     );
 
-    alert(`Sınav gönderildi. Puanın: ${score} / ${exam.questions.length}`);
+    alert("Cevaplarınız gönderildi.");
     navigate("/student-dashboard");
   };
 

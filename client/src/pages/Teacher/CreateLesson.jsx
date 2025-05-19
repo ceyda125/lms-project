@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { db, auth } from "../../firebase/firebaseConfig";
 import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function CreateLesson({ user }) {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [students, setStudents] = useState([]);
   const [lessonId, setLessonId] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -47,6 +49,7 @@ function CreateLesson({ user }) {
         students: students.map((s) => s.id),
       });
       alert("Ders başarıyla oluşturuldu!");
+      navigate("/teacher-dashboard");
       setLessonId(docRef.id);
       setTitle("");
       setDate("");

@@ -49,7 +49,6 @@ function LiveLessonsPage() {
   }, []);
 
   const now = new Date();
-  const today = now.toDateString();
 
   return (
     <div className="max-w-3xl mx-auto p-4 bg-white rounded-lg shadow-md">
@@ -63,10 +62,13 @@ function LiveLessonsPage() {
         <ul className="space-y-4">
           {lessons.map((lesson) => {
             const lessonDate = lesson.date?.toDate?.() || new Date(lesson.date);
-            const lessonDateStr = lessonDate.toDateString();
-
-            const isToday = lessonDateStr === today;
+            const isOngoing =
+              lessonDate <= now &&
+              now.toDateString() === lessonDate.toDateString();
             const isFuture = lessonDate > now;
+            const isPast =
+              lessonDate < now &&
+              now.toDateString() !== lessonDate.toDateString();
 
             return (
               <li
@@ -80,7 +82,7 @@ function LiveLessonsPage() {
                   </span>
                 </div>
 
-                {isToday ? (
+                {isOngoing ? (
                   <Link
                     to={`/live-lesson/${lesson.id}`}
                     className="text-green-600 font-semibold underline hover:text-green-800"
