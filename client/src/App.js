@@ -110,16 +110,7 @@ function App() {
 
           <Route path="/grades" element={<StudentGradesPage />} />
 
-          <Route
-            path="/student-performance/:studentId"
-            element={
-              user && role === "teacher" ? (
-                <StudentPerformance />
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
+          <Route path="/student-performance" element={<StudentPerformance />} />
           <Route path="/live-lessons" element={<LiveLessonsPage />} />
           <Route path="/exams" element={<StudentExamList />} />
           <Route path="/take-exam/:examId" element={<TakeExam />} />

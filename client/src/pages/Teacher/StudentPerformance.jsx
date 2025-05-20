@@ -1,137 +1,239 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { db } from "../../firebase/firebaseConfig";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { db, auth } from "../../firebase/firebaseConfig";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 
 function StudentPerformance() {
-  const navigate = useNavigate();
-  const { studentId } = useParams();
-  const [studentData, setStudentData] = useState(null);
-  const [attendanceData, setAttendanceData] = useState([]);
+  const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [teacherId, setTeacherId] = useState(null);
 
   useEffect(() => {
-    const fetchStudentData = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      setTeacherId(user.uid);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!teacherId) return;
+
+    const fetchStudentScoresAndAttendance = async () => {
       try {
-        const studentRef = doc(db, "users", studentId);
-        const studentSnap = await getDoc(studentRef);
+        const studentMap = {};
 
-        if (!studentSnap.exists()) {
-          console.warn("Kullanıcı bulunamadı.");
-          navigate("/teacher-dashboard");
-          return;
-        }
+        // 1) Toplam ders sayısını getir (teacherId'ye göre filtrele)
+        const lessonsSnapshot = await getDocs(
+          query(collection(db, "lessons"), where("teacherId", "==", teacherId))
+        );
+        const totalLessonsCount = lessonsSnapshot.size;
 
-        const student = studentSnap.data();
-        if (student.role !== "student") {
-          console.warn("Bu kullanıcı öğrenci değil.");
-          navigate("/teacher-dashboard");
-          return;
-        }
+        // 2) TEST SINAVLARI
+        const testSnapshot = await getDocs(
+          query(collection(db, "examResults"))
+        );
+        testSnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.teacherId !== teacherId) return;
 
-        setStudentData(student);
-
-        // Tüm dersleri getir
-        const lessonsSnap = await getDocs(collection(db, "lessons"));
-        const attendanceList = [];
-
-        for (const lessonDoc of lessonsSnap.docs) {
-          const lessonId = lessonDoc.id;
-          const lessonData = lessonDoc.data();
-
-          const attendanceDocRef = doc(
-            db,
-            `lessons/${lessonId}/attendances/${studentId}`
-          );
-          const attendanceDocSnap = await getDoc(attendanceDocRef);
-
-          if (attendanceDocSnap.exists()) {
-            const attendanceData = attendanceDocSnap.data();
-            attendanceList.push({
-              lessonId: lessonId,
-              lessonTitle: lessonData.title,
-              studentName: attendanceData.studentName,
-              joinedAt: attendanceData.joinedAt?.toDate(),
-            });
-          } else {
-            attendanceList.push({
-              lessonId: lessonId,
-              lessonTitle: lessonData.title,
-              studentName: student.displayName,
-              joinedAt: null, // Katılmamış
-            });
+          const studentId = data.studentId;
+          if (!studentMap[studentId]) {
+            studentMap[studentId] = {
+              testScores: [],
+              classicScores: [],
+              attendanceCount: 0, // yoklama için
+            };
           }
+
+          const totalQuestions = data.total || 1;
+          const correctAnswers = data.score || 0;
+
+          const percentageScore = (
+            (correctAnswers / totalQuestions) *
+            100
+          ).toFixed(0);
+
+          studentMap[studentId].testScores.push({
+            examName: data.examName || "Test Sınavı",
+            score: Number(percentageScore),
+          });
+        });
+
+        // 3) KLASİK SINAVLAR
+        const classicSnapshot = await getDocs(
+          query(
+            collection(db, "examAnswers"),
+            where("teacherId", "==", teacherId)
+          )
+        );
+        classicSnapshot.forEach((doc) => {
+          const data = doc.data();
+          const studentId = data.studentId;
+          const totalScore = (data.answers || [])
+            .map((a) => a.score)
+            .filter((s) => typeof s === "number")
+            .reduce((a, b) => a + b, 0);
+
+          if (!studentMap[studentId]) {
+            studentMap[studentId] = {
+              testScores: [],
+              classicScores: [],
+              attendanceCount: 0,
+            };
+          }
+
+          studentMap[studentId].classicScores.push({
+            examName: data.examName || "Klasik Sınav",
+            score: totalScore,
+          });
+        });
+
+        // 4) Yoklama sayısını öğrenci bazında say
+        // lessons koleksiyonu içinde her dersin altındaki attendances alt koleksiyonundan yoklama var mı kontrol et
+        for (const lessonDoc of lessonsSnapshot.docs) {
+          const lessonId = lessonDoc.id;
+          const attendanceSnapshot = await getDocs(
+            collection(db, `lessons/${lessonId}/attendances`)
+          );
+
+          attendanceSnapshot.forEach((attendanceDoc) => {
+            const attendanceData = attendanceDoc.data();
+            const studentId = attendanceDoc.id; // attandance doküman ismi öğrenciId
+
+            if (!studentMap[studentId]) {
+              studentMap[studentId] = {
+                testScores: [],
+                classicScores: [],
+                attendanceCount: 0,
+              };
+            }
+            studentMap[studentId].attendanceCount++;
+          });
         }
 
-        setAttendanceData(attendanceList);
-      } catch (error) {
-        console.error("Veriler alınırken hata:", error);
+        // 5) Sonuçları hazırla
+        const result = await Promise.all(
+          Object.entries(studentMap).map(async ([studentId, scores]) => {
+            let studentName = studentId;
+
+            try {
+              const userDoc = await getDoc(doc(db, "users", studentId));
+              if (userDoc.exists()) {
+                studentName = userDoc.data().name || studentId;
+              }
+            } catch (e) {
+              console.warn("Öğrenci adı alınamadı:", e);
+            }
+
+            const allScores = [
+              ...scores.testScores.map((t) => t.score),
+              ...scores.classicScores.map((c) => c.score),
+            ];
+
+            const overallAvg = allScores.length
+              ? (
+                  allScores.reduce((a, b) => a + b, 0) / allScores.length
+                ).toFixed(1)
+              : "-";
+
+            // Yoklama yüzdesi
+            const attendancePercent =
+              totalLessonsCount > 0
+                ? ((scores.attendanceCount / totalLessonsCount) * 100).toFixed(
+                    0
+                  )
+                : "-";
+
+            return {
+              studentId,
+              studentName,
+              testScores: scores.testScores,
+              classicScores: scores.classicScores,
+              overallAvg,
+              attendanceCount: scores.attendanceCount,
+              totalLessonsCount,
+              attendancePercent,
+            };
+          })
+        );
+
+        setStudents(result);
+      } catch (err) {
+        console.error("Veri çekme hatası:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStudentData();
-  }, [studentId, navigate]);
+    fetchStudentScoresAndAttendance();
+  }, [teacherId]);
 
-  const formatDate = (date) => {
-    const options = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    };
-    return new Intl.DateTimeFormat("tr-TR", options).format(date);
-  };
+  if (loading) return <p className="p-4">Yükleniyor...</p>;
 
   return (
-    <div className="max-w-3xl mx-auto p-4 bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-600 rounded-lg shadow-xl text-white">
-      <h3 className="text-3xl font-bold mb-4 text-center">
-        🧑‍🎓 Öğrenci Performansı
-      </h3>
+    <div className="max-w-5xl mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-6">Öğrenci Sınav Performansları</h2>
+      {students.map((student) => (
+        <div
+          key={student.studentId}
+          className="mb-8 border border-gray-300 rounded-lg p-4 shadow-sm"
+        >
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-lg font-semibold">{student.studentName}</h3>
+            <div className="text-sm font-medium">
+              Genel Ortalama: {student.overallAvg}%
+            </div>
+          </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center py-10">
-          <div className="animate-pulse bg-white h-4 w-32 rounded-md"></div>
-        </div>
-      ) : studentData ? (
-        <div>
-          <h4 className="text-2xl font-semibold mb-4">
-            {studentData.displayName}'in Performansı
-          </h4>
-          <ul className="space-y-4">
-            {attendanceData.length > 0 ? (
-              attendanceData.map((attendance) => (
-                <li
-                  key={attendance.lessonId}
-                  className="bg-white text-black p-4 rounded-lg shadow-lg transition transform hover:scale-105"
-                >
-                  <h5 className="text-xl font-semibold">
-                    {attendance.lessonTitle || "Bilinmeyen Ders"}
-                  </h5>
-                  <p>
-                    {attendance.joinedAt
-                      ? `Katıldı: ${formatDate(attendance.joinedAt)}`
-                      : "Katılmadı"}
-                  </p>
-                  <Link
-                    to={`/live-lesson/${attendance.lessonId}`}
-                    className="text-green-600 underline hover:text-green-800"
+          <div className="grid grid-cols-3 gap-4">
+            {/* Test Sınavları */}
+            <div>
+              <h4 className="font-medium mb-2">Test Sınavları</h4>
+              <ul className="space-y-1">
+                {student.testScores.map((test, idx) => (
+                  <li
+                    key={idx}
+                    className="flex justify-between border-b pb-1 text-sm"
                   >
-                    Derse Katıl
-                  </Link>
-                </li>
-              ))
-            ) : (
-              <p className="text-white">Bu öğrenciye ait ders bulunamadı.</p>
-            )}
-          </ul>
+                    <span>{test.examName}</span>
+                    <span>{test.score}%</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Klasik Sınavlar */}
+            <div>
+              <h4 className="font-medium mb-2">Klasik Sınavlar</h4>
+              <ul className="space-y-1">
+                {student.classicScores.map((classic, idx) => (
+                  <li
+                    key={idx}
+                    className="flex justify-between border-b pb-1 text-sm"
+                  >
+                    <span>{classic.examName}</span>
+                    <span>{classic.score}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Yoklama */}
+            <div>
+              <h4 className="font-medium mb-2">Yoklama</h4>
+              <p>Katıldığı Ders: {student.attendanceCount}</p>
+              <p>Toplam Ders: {student.totalLessonsCount}</p>
+              <p>Katılım Oranı: {student.attendancePercent}%</p>
+            </div>
+          </div>
         </div>
-      ) : (
-        <p className="text-white">Öğrenci verisi bulunamadı.</p>
-      )}
+      ))}
     </div>
   );
 }

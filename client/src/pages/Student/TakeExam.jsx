@@ -48,6 +48,7 @@ function TakeExam() {
       score,
       total: exam.questions.length,
       createdAt: new Date(),
+      teacherId: exam.teacherId,
     };
 
     await setDoc(

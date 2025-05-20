@@ -1,18 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  doc,
-  setDoc,
-  Timestamp,
-  getDoc,
-  collection,
-  getDocs,
-  addDoc,
-} from "firebase/firestore";
+import { doc, setDoc, Timestamp, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 
 async function recordAttendance(lessonId, student) {
+  // Önce dersi alıp öğretmen kontrolü yapalım
+  const lessonRef = doc(db, "lessons", lessonId);
+  const lessonSnap = await getDoc(lessonRef);
+  if (!lessonSnap.exists()) return;
+
+  const lessonData = lessonSnap.data();
+  if (lessonData.teacherId === student.uid) {
+    // Öğretmen ise yoklama kaydetme
+    return;
+  }
+
   const userRef = doc(db, `users/${student.uid}`);
   const userSnap = await getDoc(userRef);
 
@@ -35,7 +38,6 @@ function LiveLesson() {
   const navigate = useNavigate();
   const [lesson, setLesson] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
-  const [isTeacher, setIsTeacher] = useState(false);
   const jitsiContainerRef = useRef(null);
 
   useEffect(() => {
@@ -51,7 +53,6 @@ function LiveLesson() {
     fetchLesson();
   }, [lessonId, navigate]);
 
-  // Auth durumunu dinle ve kullanıcıyı belirle
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -63,21 +64,16 @@ function LiveLesson() {
     return () => unsubscribe();
   }, [navigate]);
 
-  useEffect(() => {
-    if (lesson && currentUser) {
-      setIsTeacher(lesson.teacherId === currentUser.uid);
-    }
-  }, [lesson, currentUser]);
+  // isTeacher'ı doğrudan hesapla
+  const isTeacher = lesson?.teacherId === currentUser?.uid;
 
-  // Jitsi entegrasyonu ve otomatik yoklama
   useEffect(() => {
-    const current = currentUser;
-    if (lesson && current && jitsiContainerRef.current) {
+    if (lesson && currentUser && jitsiContainerRef.current) {
       const domain = "meet.jit.si";
       const options = {
         roomName: lesson.roomName || lessonId,
         parentNode: jitsiContainerRef.current,
-        userInfo: { displayName: current.displayName || "Katılımcı" },
+        userInfo: { displayName: currentUser.displayName || "Katılımcı" },
         width: "100%",
         height: 600,
         configOverwrite: {
@@ -88,11 +84,14 @@ function LiveLesson() {
       };
 
       const api = new window.JitsiMeetExternalAPI(domain, options);
-      recordAttendance(lessonId, current);
+
+      if (!isTeacher) {
+        recordAttendance(lessonId, currentUser);
+      }
 
       return () => api.dispose();
     }
-  }, [lesson, currentUser, lessonId]);
+  }, [lesson, currentUser, lessonId, isTeacher]);
 
   if (!lesson) {
     return <div className="p-4 text-center">Yükleniyor...</div>;
