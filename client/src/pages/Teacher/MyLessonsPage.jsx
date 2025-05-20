@@ -43,7 +43,7 @@ function MyLessonsPage() {
       lessonDate.getMonth(),
       lessonDate.getDate()
     );
-    return lessonDay.getTime() === today.getTime(); // sadece bugüne eşitse aktif
+    return lessonDay.getTime() === today.getTime();
   };
 
   return (

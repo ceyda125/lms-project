@@ -64,7 +64,6 @@ function MyExamsPage() {
         ))}
       </ul>
 
-      {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-full max-w-2xl p-6 overflow-y-auto max-h-[80vh] relative">
@@ -87,7 +86,7 @@ function MyExamsPage() {
                           const optionLabel = String.fromCharCode(65 + i); // A, B, C, D
                           return (
                             <li key={i}>
-                              {optionLabel}) {opt}{" "}
+                              {optionLabel} {opt}{" "}
                               {optionLabel === q.correctAnswer && (
                                 <span className="text-green-600 font-bold">
                                   (Doğru)

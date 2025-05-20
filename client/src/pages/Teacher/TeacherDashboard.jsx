@@ -43,7 +43,6 @@ function TeacherDashboard({ user }) {
     fetchLessons();
   }, [user, navigate]);
 
-  // Özelleştirilmiş tarih formatı
   const formatDate = (date) => {
     const options = {
       year: "numeric",
@@ -84,7 +83,6 @@ function TeacherDashboard({ user }) {
           <span>Öğrenci Performansları</span>
         </Link>
 
-        {/* Yeni Butonlar */}
         <Link
           to="/my-lessons"
           className="flex items-center space-x-2 text-lg text-white hover:text-yellow-400 transition"

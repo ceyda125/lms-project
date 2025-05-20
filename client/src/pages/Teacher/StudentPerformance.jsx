@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 function StudentPerformance() {
   const navigate = useNavigate();
-  const { studentId } = useParams(); // UID (auth.currentUser.uid) geliyor
+  const { studentId } = useParams();
   const [studentData, setStudentData] = useState(null);
   const [attendanceData, setAttendanceData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +14,6 @@ function StudentPerformance() {
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        // UID'ye göre kullanıcıyı çek
         const studentRef = doc(db, "users", studentId);
         const studentSnap = await getDoc(studentRef);
 

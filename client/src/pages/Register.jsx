@@ -9,7 +9,7 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
-  const [name, setName] = useState(""); // Ad Soyad
+  const [name, setName] = useState("");
   const [teacherList, setTeacherList] = useState([]);
   const [selectedTeacher, setSelectedTeacher] = useState("");
   const navigate = useNavigate();

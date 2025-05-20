@@ -51,7 +51,7 @@ function TakeClassicExamPage() {
       await addDoc(collection(db, "examAnswers"), {
         studentId: currentUser.uid,
         examId,
-        teacherId: exam.teacherId, // Burada teacherId ekleniyor
+        teacherId: exam.teacherId,
         answers: answersToSave,
         submittedAt: Timestamp.now(),
       });

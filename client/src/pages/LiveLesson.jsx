@@ -1,78 +1,102 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import { doc, setDoc, Timestamp, getDoc } from "firebase/firestore";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  doc,
+  setDoc,
+  Timestamp,
+  getDoc,
+  collection,
+  getDocs,
+  addDoc,
+} from "firebase/firestore";
 import { db, auth } from "../firebase/firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth"; // Burada import edilmesi gerekiyor
-import { useNavigate } from "react-router-dom"; // navigate burada kullanılacak
+import { onAuthStateChanged } from "firebase/auth";
 
 async function recordAttendance(lessonId, student) {
+  const userRef = doc(db, `users/${student.uid}`);
+  const userSnap = await getDoc(userRef);
+
+  const studentName = userSnap.exists()
+    ? userSnap.data().name || "Bilinmeyen"
+    : "Bilinmeyen";
+
   const attendanceRef = doc(
     db,
     `lessons/${lessonId}/attendances/${student.uid}`
   );
   await setDoc(attendanceRef, {
-    studentName: student.displayName || "Bilinmeyen",
+    studentName,
     joinedAt: Timestamp.now(),
   });
 }
 
 function LiveLesson() {
   const { lessonId } = useParams();
+  const navigate = useNavigate();
   const [lesson, setLesson] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isTeacher, setIsTeacher] = useState(false);
   const jitsiContainerRef = useRef(null);
-  const navigate = useNavigate(); // useNavigate burada kullanılıyor
 
   useEffect(() => {
     const fetchLesson = async () => {
       const docRef = doc(db, "lessons", lessonId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setLesson(docSnap.data());
+        setLesson({ id: docSnap.id, ...docSnap.data() });
+      } else {
+        navigate("/");
       }
     };
     fetchLesson();
-  }, [lessonId]);
+  }, [lessonId, navigate]);
 
+  // Auth durumunu dinle ve kullanıcıyı belirle
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        navigate("/"); // Oturum kapalıysa anasayfaya yönlendir
+        navigate("/");
+      } else {
+        setCurrentUser(user);
       }
     });
-
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
-    const currentUser = auth.currentUser;
+    if (lesson && currentUser) {
+      setIsTeacher(lesson.teacherId === currentUser.uid);
+    }
+  }, [lesson, currentUser]);
 
-    if (lesson && currentUser && jitsiContainerRef.current) {
+  // Jitsi entegrasyonu ve otomatik yoklama
+  useEffect(() => {
+    const current = currentUser;
+    if (lesson && current && jitsiContainerRef.current) {
       const domain = "meet.jit.si";
       const options = {
         roomName: lesson.roomName || lessonId,
         parentNode: jitsiContainerRef.current,
-        userInfo: {
-          displayName: currentUser.displayName || "Öğrenci",
-        },
+        userInfo: { displayName: current.displayName || "Katılımcı" },
         width: "100%",
         height: 600,
         configOverwrite: {
           startWithAudioMuted: false,
           startWithVideoMuted: false,
         },
-        interfaceConfigOverwrite: {
-          SHOW_JITSI_WATERMARK: false,
-        },
+        interfaceConfigOverwrite: { SHOW_JITSI_WATERMARK: false },
       };
 
       const api = new window.JitsiMeetExternalAPI(domain, options);
-      recordAttendance(lessonId, currentUser);
+      recordAttendance(lessonId, current);
 
       return () => api.dispose();
     }
-  }, [lesson]);
+  }, [lesson, currentUser, lessonId]);
 
-  if (!lesson) return <div className="p-4 text-center">Yükleniyor...</div>;
+  if (!lesson) {
+    return <div className="p-4 text-center">Yükleniyor...</div>;
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-4">

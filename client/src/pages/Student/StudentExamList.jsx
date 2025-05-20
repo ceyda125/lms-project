@@ -40,7 +40,6 @@ function StudentExamList() {
       }));
       setExams(examList);
 
-      // Öğrencinin daha önce girdiği sınav sonuçlarını al (hem test hem klasik)
       const testResultsQuery = query(
         collection(db, "examResults"),
         where("studentId", "==", currentUser.uid)

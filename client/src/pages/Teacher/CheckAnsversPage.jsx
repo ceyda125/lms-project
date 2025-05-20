@@ -19,7 +19,7 @@ function CheckAnswersPage() {
 
       const q = query(
         collection(db, "examAnswers"),
-        where("teacherId", "==", auth.currentUser.uid) // teacherId'ye göre filtreleme
+        where("teacherId", "==", auth.currentUser.uid)
       );
 
       const snapshot = await getDocs(q);
