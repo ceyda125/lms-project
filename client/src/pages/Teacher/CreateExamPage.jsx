@@ -54,7 +54,7 @@ function CreateExamPage() {
     try {
       await addDoc(collection(db, "exams"), examData);
       alert("Sınav başarıyla oluşturuldu!");
-      navigate("/teacher-dashboard");
+      navigate("/dashboard");
     } catch (err) {
       console.error("Sınav kaydedilemedi:", err);
       alert("Bir hata oluştu.");
@@ -62,110 +62,125 @@ function CreateExamPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold mb-4">📝 Sınav Oluştur</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="max-w-5xl w-full p-8 bg-white rounded-xl shadow-md">
+        <h2 className="text-3xl font-bold mb-8 text-gray-800 text-center">
+          📝 Sınav Oluştur
+        </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block mb-1 font-semibold">Sınav Başlığı</label>
-          <input
-            type="text"
-            className="w-full border p-2 rounded"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div>
+            <label className="block mb-2 font-semibold text-gray-700">
+              Sınav Başlığı
+            </label>
+            <input
+              type="text"
+              className="w-full p-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
 
-        <div>
-          <label className="block mb-1 font-semibold">Sınav Türü</label>
-          <select
-            className="w-full border p-2 rounded"
-            value={type}
-            onChange={(e) => {
-              setType(e.target.value);
-              setQuestions([
-                {
-                  questionText: "",
-                  options: ["", "", "", ""],
-                  correctAnswer: "",
-                },
-              ]);
-            }}
-          >
-            <option value="klasik">Klasik</option>
-            <option value="test">Test</option>
-          </select>
-        </div>
+          <div>
+            <label className="block mb-2 font-semibold text-gray-700">
+              Sınav Türü
+            </label>
+            <select
+              className="w-full p-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={type}
+              onChange={(e) => {
+                setType(e.target.value);
+                setQuestions([
+                  {
+                    questionText: "",
+                    options: ["", "", "", ""],
+                    correctAnswer: "",
+                  },
+                ]);
+              }}
+            >
+              <option value="klasik">Klasik</option>
+              <option value="test">Test</option>
+            </select>
+          </div>
 
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Sorular</h3>
-          {questions.map((q, index) => (
-            <div key={index} className="mb-4 border p-4 rounded bg-gray-50">
-              <label className="block mb-1">Soru {index + 1}</label>
-              <input
-                type="text"
-                className="w-full border p-2 rounded mb-2"
-                placeholder="Soru metni"
-                value={q.questionText}
-                onChange={(e) =>
-                  handleQuestionChange(index, "questionText", e.target.value)
-                }
-              />
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">
+              Sorular
+            </h3>
+            {questions.map((q, index) => (
+              <div
+                key={index}
+                className="mb-6 p-6 bg-gray-50 rounded-md border border-gray-200"
+              >
+                <label className="block mb-2 font-medium text-gray-700">
+                  Soru {index + 1}
+                </label>
+                <input
+                  type="text"
+                  className="w-full p-3 rounded-md border border-gray-300 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="Soru metni"
+                  value={q.questionText}
+                  onChange={(e) =>
+                    handleQuestionChange(index, "questionText", e.target.value)
+                  }
+                />
 
-              {type === "test" && (
-                <>
-                  {[0, 1, 2, 3].map((i) => (
+                {type === "test" && (
+                  <>
+                    {[0, 1, 2, 3].map((i) => (
+                      <input
+                        key={i}
+                        type="text"
+                        className="w-full p-3 rounded-md border border-gray-300 mb-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder={`Seçenek ${i + 1}`}
+                        value={q.options[i]}
+                        onChange={(e) =>
+                          handleQuestionChange(
+                            index,
+                            `option${i}`,
+                            e.target.value
+                          )
+                        }
+                      />
+                    ))}
                     <input
-                      key={i}
                       type="text"
-                      className="w-full border p-2 rounded mb-1"
-                      placeholder={`Seçenek ${i + 1}`}
-                      value={q.options[i]}
+                      className="w-full p-3 rounded-md border border-gray-300 mt-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="Doğru cevap (A, B, C, D)"
+                      value={q.correctAnswer}
                       onChange={(e) =>
                         handleQuestionChange(
                           index,
-                          `option${i}`,
+                          "correctAnswer",
                           e.target.value
                         )
                       }
+                      required
                     />
-                  ))}
-                  <input
-                    type="text"
-                    className="w-full border p-2 rounded mt-2"
-                    placeholder="Doğru cevap (A, B, C, D)"
-                    value={q.correctAnswer}
-                    onChange={(e) =>
-                      handleQuestionChange(
-                        index,
-                        "correctAnswer",
-                        e.target.value
-                      )
-                    }
-                    required
-                  />
-                </>
-              )}
-            </div>
-          ))}
+                  </>
+                )}
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addQuestion}
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md px-6 py-2 transition"
+            >
+              Soru Ekle
+            </button>
+          </div>
 
           <button
-            type="button"
-            onClick={addQuestion}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            type="submit"
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md px-8 py-3 w-full transition"
           >
-            Soru Ekle
+            Sınavı Kaydet
           </button>
-        </div>
-
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-        >
-          Sınavı Kaydet
-        </button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { ClipboardList } from "lucide-react";
 
 function StudentExamList() {
   const [exams, setExams] = useState([]);
@@ -28,7 +29,6 @@ function StudentExamList() {
         return;
       }
 
-      // Öğrenciye ait sınavları al
       const q = query(
         collection(db, "exams"),
         where("teacherId", "==", teacherId)
@@ -55,12 +55,8 @@ function StudentExamList() {
       ]);
 
       const takenIds = new Set();
-      testSnap.docs.forEach((doc) => {
-        takenIds.add(doc.data().examId);
-      });
-      classicSnap.docs.forEach((doc) => {
-        takenIds.add(doc.data().examId);
-      });
+      testSnap.docs.forEach((doc) => takenIds.add(doc.data().examId));
+      classicSnap.docs.forEach((doc) => takenIds.add(doc.data().examId));
 
       setTakenExamIds(takenIds);
     };
@@ -89,44 +85,55 @@ function StudentExamList() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">📋 Katılabileceğin Sınavlar</h2>
-      <ul className="space-y-4">
-        {exams.map((exam) => {
-          const alreadyTaken = takenExamIds.has(exam.id);
+    <div className="min-h-screen p-6 md:p-10 bg-gray-100 flex justify-center">
+      <div className="max-w-4xl w-full bg-white rounded-xl shadow-md p-8">
+        <h2 className="text-3xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+          <ClipboardList className="w-7 h-7 text-green-600" />
+          Katılabileceğin Sınavlar
+        </h2>
 
-          return (
-            <li
-              key={exam.id}
-              className={`p-4 shadow rounded transition ${
-                alreadyTaken
-                  ? "bg-gray-200 cursor-not-allowed"
-                  : "bg-white hover:bg-gray-100 cursor-pointer"
-              }`}
-              onClick={() => {
-                if (!alreadyTaken) handleGoToExam(exam);
-              }}
-            >
-              <div className="flex justify-between items-center">
-                <h4 className="text-lg font-semibold">{exam.title}</h4>
-                {alreadyTaken ? (
-                  <span className="text-gray-500 italic">Zaten Katıldın</span>
-                ) : (
-                  <button
-                    className="text-blue-600 hover:underline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleGoToExam(exam);
-                    }}
-                  >
-                    Sınava Katıl
-                  </button>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+        {exams.length === 0 ? (
+          <p className="text-gray-600 text-center">Sınav bulunamadı.</p>
+        ) : (
+          <ul className="space-y-4">
+            {exams.map((exam) => {
+              const alreadyTaken = takenExamIds.has(exam.id);
+              return (
+                <li
+                  key={exam.id}
+                  className={`p-5 rounded-xl shadow-md transition ${
+                    alreadyTaken
+                      ? "bg-gray-200 cursor-not-allowed"
+                      : "bg-white hover:shadow-lg cursor-pointer"
+                  }`}
+                  onClick={() => !alreadyTaken && handleGoToExam(exam)}
+                >
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-lg font-semibold text-gray-800">
+                      {exam.title}
+                    </h4>
+                    {alreadyTaken ? (
+                      <span className="text-gray-500 italic">
+                        Zaten Katıldın
+                      </span>
+                    ) : (
+                      <button
+                        className="text-green-600 font-semibold hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleGoToExam(exam);
+                        }}
+                      >
+                        Sınava Katıl
+                      </button>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { Link } from "react-router-dom";
+import { CalendarDays } from "lucide-react";
 
 function LiveLessonsPage() {
   const [lessons, setLessons] = useState([]);
@@ -51,58 +52,75 @@ function LiveLessonsPage() {
   const now = new Date();
 
   return (
-    <div className="max-w-3xl mx-auto p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
-        📅 Canlı Derslerim
-      </h2>
+    <div className="min-h-screen p-6 md:p-10 bg-gray-100 flex justify-center">
+      <div className="max-w-4xl w-full bg-white rounded-xl shadow-md p-8">
+        <h2 className="text-3xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+          <CalendarDays className="w-7 h-7 text-green-600" />
+          Canlı Derslerim
+        </h2>
 
-      {loading ? (
-        <p>Yükleniyor...</p>
-      ) : lessons.length > 0 ? (
-        <ul className="space-y-4">
-          {lessons.map((lesson) => {
-            const lessonDate = lesson.date?.toDate?.() || new Date(lesson.date);
-            const isOngoing =
-              lessonDate <= now &&
-              now.toDateString() === lessonDate.toDateString();
-            const isFuture = lessonDate > now;
-            const isPast =
-              lessonDate < now &&
-              now.toDateString() !== lessonDate.toDateString();
+        {loading ? (
+          <p className="text-gray-600 text-center">Yükleniyor...</p>
+        ) : lessons.length === 0 ? (
+          <p className="text-gray-600 text-center">
+            Kayıtlı canlı ders bulunamadı.
+          </p>
+        ) : (
+          <ul className="space-y-4">
+            {lessons.map((lesson) => {
+              let lessonDate;
+              if (lesson.date && typeof lesson.date.toDate === "function") {
+                lessonDate = lesson.date.toDate();
+              } else {
+                lessonDate = new Date(lesson.date);
+              }
 
-            return (
-              <li
-                key={lesson.id}
-                className="p-4 border rounded-md shadow-sm bg-gray-100"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <h4 className="font-semibold text-lg">{lesson.title}</h4>
-                  <span className="text-sm text-gray-600">
-                    {lessonDate.toLocaleString("tr-TR")}
-                  </span>
-                </div>
+              const isOngoing =
+                lessonDate <= now &&
+                now.toDateString() === lessonDate.toDateString();
+              const isFuture = lessonDate > now;
+              const isPast =
+                lessonDate < now &&
+                now.toDateString() !== lessonDate.toDateString();
 
-                {isOngoing ? (
-                  <Link
-                    to={`/live-lesson/${lesson.id}`}
-                    className="text-green-600 font-semibold underline hover:text-green-800"
-                  >
-                    Derse Katıl
-                  </Link>
-                ) : isFuture ? (
-                  <span className="text-gray-500">Henüz başlamadı</span>
-                ) : (
-                  <span className="text-red-500 font-semibold">
-                    Süresi Geçti
-                  </span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      ) : (
-        <p>Kayıtlı canlı ders bulunamadı.</p>
-      )}
+              return (
+                <li
+                  key={lesson.id}
+                  className={`p-5 rounded-xl shadow-md transition ${
+                    isPast ? "bg-gray-200" : "bg-white hover:shadow-lg"
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-800">
+                        {lesson.title}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {lessonDate.toLocaleString("tr-TR")}
+                      </p>
+                    </div>
+
+                    {isOngoing ? (
+                      <Link
+                        to={`/live-lesson/${lesson.id}`}
+                        className="text-green-600 font-semibold hover:underline"
+                      >
+                        Derse Katıl
+                      </Link>
+                    ) : isFuture ? (
+                      <span className="text-gray-500 italic">
+                        Henüz başlamadı
+                      </span>
+                    ) : (
+                      <span className="text-red-500 italic">Süresi geçti</span>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

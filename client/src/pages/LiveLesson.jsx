@@ -3,16 +3,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import { doc, setDoc, Timestamp, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
+import { VideoIcon } from "lucide-react";
 
 async function recordAttendance(lessonId, student) {
-  // Önce dersi alıp öğretmen kontrolü yapalım
   const lessonRef = doc(db, "lessons", lessonId);
   const lessonSnap = await getDoc(lessonRef);
   if (!lessonSnap.exists()) return;
 
   const lessonData = lessonSnap.data();
   if (lessonData.teacherId === student.uid) {
-    // Öğretmen ise yoklama kaydetme
     return;
   }
 
@@ -64,7 +63,6 @@ function LiveLesson() {
     return () => unsubscribe();
   }, [navigate]);
 
-  // isTeacher'ı doğrudan hesapla
   const isTeacher = lesson?.teacherId === currentUser?.uid;
 
   useEffect(() => {
@@ -80,7 +78,10 @@ function LiveLesson() {
           startWithAudioMuted: false,
           startWithVideoMuted: false,
         },
-        interfaceConfigOverwrite: { SHOW_JITSI_WATERMARK: false },
+        interfaceConfigOverwrite: {
+          SHOW_JITSI_WATERMARK: false,
+          SHOW_WATERMARK_FOR_GUESTS: false,
+        },
       };
 
       const api = new window.JitsiMeetExternalAPI(domain, options);
@@ -94,12 +95,14 @@ function LiveLesson() {
   }, [lesson, currentUser, lessonId, isTeacher]);
 
   if (!lesson) {
-    return <div className="p-4 text-center">Yükleniyor...</div>;
+    return (
+      <p className="text-center text-gray-600 mt-10">Ders yükleniyor...</p>
+    );
   }
 
   return (
     <div className="max-w-7xl mx-auto p-4">
-      <h2 className="text-3xl font-bold mb-4 text-center">{lesson.title}</h2>
+      <h2 className="text-4xl font-bold mb-4 text-center">{lesson.title}</h2>
       <div
         id="jitsi-container"
         ref={jitsiContainerRef}

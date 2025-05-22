@@ -7,32 +7,43 @@ import {
 
 function StudentDashboard() {
   return (
-    <div className="max-w-3xl mx-auto p-4 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 rounded-lg shadow-xl text-white">
-      <h2 className="text-3xl font-bold mb-4 text-center">👨‍🎓 Öğrenci Paneli</h2>
+    <div className="min-h-screen bg-gray-100 p-6 md:p-10 flex items-center justify-center">
+      <div className="max-w-4xl w-full bg-white rounded-xl shadow-md p-8">
+        <h2 className="text-3xl font-bold mb-8 text-gray-800 flex items-center gap-3 justify-center">
+          👨‍🎓 Öğrenci Paneli
+        </h2>
 
-      <div className="space-y-4 mb-6">
-        <Link
-          to="/live-lessons"
-          className="flex items-center space-x-2 text-lg hover:text-yellow-300 cursor-pointer transition"
-        >
-          <VideoCameraIcon className="w-6 h-6" />
-          <span>Canlı Derslerim</span>
-        </Link>
-        <Link
-          to="/exams"
-          className="flex items-center space-x-2 text-lg hover:text-yellow-300 cursor-pointer transition"
-        >
-          <ClipboardCheckIcon className="w-6 h-6" />
-          <span>Sınavlara Katıl</span>
-        </Link>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link
+            to="/live-lessons"
+            className="flex flex-col items-center justify-center p-6 bg-indigo-50 rounded-xl shadow hover:shadow-lg transition cursor-pointer"
+          >
+            <VideoCameraIcon className="w-12 h-12 text-indigo-600 mb-3" />
+            <span className="text-indigo-800 font-semibold text-lg text-center">
+              Canlı Derslerim
+            </span>
+          </Link>
 
-        <Link
-          to="/grades"
-          className="flex items-center space-x-2 text-lg hover:text-yellow-300 cursor-pointer transition"
-        >
-          <StarIcon className="w-6 h-6" />
-          <span>Notlarım</span>
-        </Link>
+          <Link
+            to="/exams"
+            className="flex flex-col items-center justify-center p-6 bg-indigo-50 rounded-xl shadow hover:shadow-lg transition cursor-pointer"
+          >
+            <ClipboardCheckIcon className="w-12 h-12 text-indigo-600 mb-3" />
+            <span className="text-indigo-800 font-semibold text-lg text-center">
+              Sınavlara Katıl
+            </span>
+          </Link>
+
+          <Link
+            to="/grades"
+            className="flex flex-col items-center justify-center p-6 bg-indigo-50 rounded-xl shadow hover:shadow-lg transition cursor-pointer"
+          >
+            <StarIcon className="w-12 h-12 text-indigo-600 mb-3" />
+            <span className="text-indigo-800 font-semibold text-lg text-center">
+              Notlarım
+            </span>
+          </Link>
+        </div>
       </div>
     </div>
   );

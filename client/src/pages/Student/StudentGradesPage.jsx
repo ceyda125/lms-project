@@ -8,6 +8,7 @@ import {
   getDoc,
   doc,
 } from "firebase/firestore";
+import { BarChart2, ClipboardList } from "lucide-react";
 
 function StudentGradesPage() {
   const [classicResults, setClassicResults] = useState([]);
@@ -79,82 +80,102 @@ function StudentGradesPage() {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-6">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-        📊 Sınav Notlarım
+    <div className="p-6 md:p-10 bg-gray-100 min-h-screen">
+      <h2 className="text-3xl font-bold mb-8 text-gray-800 flex items-center gap-2">
+        <ClipboardList className="w-7 h-7 text-green-600" />
+        Sınav Notlarım
       </h2>
 
       {loading ? (
-        <p>Yükleniyor...</p>
+        <div className="text-center text-gray-600">Yükleniyor...</div>
       ) : (
-        <>
-          <h3 className="text-xl font-semibold mb-2 text-blue-700">
-            Klasik Sınavlar
-          </h3>
-          {classicResults.length > 0 ? (
-            <ul className="mb-6">
-              {classicResults.map((result) => {
-                const date = result.submittedAt
-                  ?.toDate()
-                  .toLocaleDateString("tr-TR");
-                const totalScore = result.answers.reduce(
-                  (acc, q) => acc + (q.score || 0),
-                  0
-                );
-                const title = examTitles[result.examId] || "Yükleniyor...";
-
-                return (
-                  <li
-                    key={result.id}
-                    className="border p-4 mb-2 rounded bg-gray-50 shadow-sm"
-                  >
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium text-gray-700">{title}</span>
-                      <span className="text-sm text-gray-500">{date}</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Klasik Sınav Kartları */}
+          <div className="bg-white rounded-xl shadow p-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <BarChart2 className="text-green-500" />
+              Klasik Sınavlar
+            </h3>
+            {classicResults.length > 0 ? (
+              <div className="space-y-3">
+                {classicResults.map((result) => {
+                  const date = result.submittedAt
+                    ?.toDate()
+                    .toLocaleDateString("tr-TR");
+                  const totalScore = result.answers.reduce(
+                    (acc, q) => acc + (q.score || 0),
+                    0
+                  );
+                  const title = examTitles[result.examId] || "Yükleniyor...";
+                  return (
+                    <div
+                      key={result.id}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow transition"
+                    >
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-medium text-gray-700">
+                          {title}
+                        </span>
+                        <span className="text-sm text-gray-500">{date}</span>
+                      </div>
+                      <div className="text-gray-700">
+                        Toplam Puan:{" "}
+                        <span className="font-semibold text-green-600">
+                          {totalScore}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-gray-800">Toplam Puan: {totalScore}</p>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <p className="text-gray-500 mb-6">
-              Klasik sınav sonucu bulunamadı.
-            </p>
-          )}
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-gray-500">Klasik sınav sonucu bulunamadı.</p>
+            )}
+          </div>
 
-          <h3 className="text-xl font-semibold mb-2 text-green-700">
-            Test Sınavları
-          </h3>
-          {testResults.length > 0 ? (
-            <ul>
-              {testResults.map((result) => {
-                const date = result.createdAt
-                  ?.toDate()
-                  .toLocaleDateString("tr-TR");
-                const title = examTitles[result.examId] || "Yükleniyor...";
-                const percentage = result.total
-                  ? Math.round((result.score / result.total) * 100)
-                  : 0;
+          {/* Test Sınav Kartları */}
+          <div className="bg-white rounded-xl shadow p-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <BarChart2 className="text-green-500" />
+              Test Sınavları
+            </h3>
+            {testResults.length > 0 ? (
+              <div className="space-y-3">
+                {testResults.map((result) => {
+                  const date = result.createdAt
+                    ?.toDate()
+                    .toLocaleDateString("tr-TR");
+                  const title = examTitles[result.examId] || "Yükleniyor...";
+                  const percentage = result.total
+                    ? Math.round((result.score / result.total) * 100)
+                    : 0;
 
-                return (
-                  <li
-                    key={result.id}
-                    className="border p-4 mb-2 rounded bg-gray-50 shadow-sm"
-                  >
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium text-gray-700">{title}</span>
-                      <span className="text-sm text-gray-500">{date}</span>
+                  return (
+                    <div
+                      key={result.id}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow transition"
+                    >
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-medium text-gray-700">
+                          {title}
+                        </span>
+                        <span className="text-sm text-gray-500">{date}</span>
+                      </div>
+                      <div className="text-gray-700">
+                        Başarı Oranı:{" "}
+                        <span className="font-semibold text-green-600">
+                          {percentage}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-gray-800">Puan: %{percentage}</p>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <p className="text-gray-500">Test sınav sonucu bulunamadı.</p>
-          )}
-        </>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-gray-500">Test sınav sonucu bulunamadı.</p>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

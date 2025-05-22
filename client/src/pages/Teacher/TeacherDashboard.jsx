@@ -43,71 +43,60 @@ function TeacherDashboard({ user }) {
     fetchLessons();
   }, [user, navigate]);
 
-  const formatDate = (date) => {
-    const options = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    };
-    return new Intl.DateTimeFormat("tr-TR", options).format(date);
-  };
-
   return (
-    <div className="max-w-3xl mx-auto p-4 bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-600 rounded-lg shadow-xl text-white">
-      <h3 className="text-3xl font-bold mb-4 text-center">
-        👨‍🏫 Öğretmen Paneli
-      </h3>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="max-w-5xl w-full p-8 bg-white rounded-xl shadow-md">
+        <h3 className="text-3xl font-bold mb-8 text-gray-800 text-center">
+          👨‍🏫 Öğretmen Paneli
+        </h3>
 
-      <div className="space-y-4 mb-6">
-        <Link
-          to="/create-lesson"
-          className="flex items-center space-x-2 text-lg text-white hover:text-yellow-400 transition"
-        >
-          <PlusCircleIcon className="w-6 h-6" />
-          <span>Ders Oluştur</span>
-        </Link>
-        <Link
-          to="/create-exam"
-          className="flex items-center space-x-2 text-lg text-white hover:text-yellow-400 transition"
-        >
-          <CogIcon className="w-6 h-6" />
-          <span>Sınav Oluştur</span>
-        </Link>
-        <Link
-          to="/student-performance"
-          className="flex items-center space-x-2 text-lg text-white hover:text-yellow-400 transition"
-        >
-          <UserGroupIcon className="w-6 h-6" />
-          <span>Öğrenci Performansları</span>
-        </Link>
-
-        <Link
-          to="/my-lessons"
-          className="flex items-center space-x-2 text-lg text-white hover:text-yellow-400 transition"
-        >
-          <VideoCameraIcon className="w-6 h-6" />
-          <span>Oluşturduğum Canlı Dersler</span>
-        </Link>
-        <Link
-          to="/my-exams"
-          className="flex items-center space-x-2 text-lg text-white hover:text-yellow-400 transition"
-        >
-          <ClipboardListIcon className="w-6 h-6" />
-          <span>Oluşturduğum Sınavlar</span>
-        </Link>
-
-        <Link
-          to="/check-answers"
-          className="flex items-center space-x-2 text-lg text-white hover:text-yellow-400 transition"
-        >
-          <ClipboardListIcon className="w-6 h-6" />
-          <span>Öğrenci Cevaplarını Değerlendir</span>
-        </Link>
+        <div className="space-y-6">
+          <DashboardLink
+            to="/create-lesson"
+            icon={<PlusCircleIcon className="w-7 h-7 text-indigo-600" />}
+            label="Ders Oluştur"
+          />
+          <DashboardLink
+            to="/create-exam"
+            icon={<CogIcon className="w-7 h-7 text-indigo-600" />}
+            label="Sınav Oluştur"
+          />
+          <DashboardLink
+            to="/student-performance"
+            icon={<UserGroupIcon className="w-7 h-7 text-indigo-600" />}
+            label="Öğrenci Performansları"
+          />
+          <DashboardLink
+            to="/my-lessons"
+            icon={<VideoCameraIcon className="w-7 h-7 text-indigo-600" />}
+            label="Oluşturduğum Canlı Dersler"
+          />
+          <DashboardLink
+            to="/my-exams"
+            icon={<ClipboardListIcon className="w-7 h-7 text-indigo-600" />}
+            label="Oluşturduğum Sınavlar"
+          />
+          <DashboardLink
+            to="/check-answers"
+            icon={<ClipboardListIcon className="w-7 h-7 text-indigo-600" />}
+            label="Öğrenci Cevaplarını Değerlendir"
+          />
+        </div>
       </div>
     </div>
   );
 }
+
+const DashboardLink = ({ to, icon, label }) => {
+  return (
+    <Link
+      to={to}
+      className="flex items-center space-x-4 p-5 bg-indigo-50 hover:bg-indigo-100 rounded-md transition"
+    >
+      {icon}
+      <span className="text-indigo-800 font-semibold text-lg">{label}</span>
+    </Link>
+  );
+};
 
 export default TeacherDashboard;
