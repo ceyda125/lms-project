@@ -11,7 +11,6 @@ Frontend için **React**, veritabanı ve kimlik doğrulama işlemleri için **Fi
 - 👨‍🏫 **Öğrenci Takibi** ve **Raporlama Sistemi**
 - 📝 **Sınav ve Değerlendirme Modülü**
 - ☁️ **Firebase Authentication** ile kullanıcı yönetimi
-- 💾 **AWS S3 ile video yükleme ve yönetme**
 - 📊 **Gerçek zamanlı öğrenci katılım takibi**
 
 
