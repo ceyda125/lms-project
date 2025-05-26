@@ -19,7 +19,6 @@ Frontend için **React**, veritabanı ve kimlik doğrulama işlemleri için **Fi
 
 - **React** – Kullanıcı arayüzü
 - **Firebase** – Kimlik doğrulama, veritabanı ve gerçek zamanlı veri takibi
-- **AWS S3** – Video depolama ve yönetimi
 - **Jitsi Meet** – Canlı dersler için video konferans altyapısı (isteğe bağlı)
 - **TailwindCSS / CSS Modules** – Stil yönetimi
 
