@@ -46,7 +46,7 @@ class ErrorBoundary extends React.Component {
 function App() {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState("");
-  const navigate = useNavigate(); // useNavigate() burada tanımlandı
+  const navigate = useNavigate();
 
   // Firebase oturum takibi
   useEffect(() => {
@@ -69,7 +69,7 @@ function App() {
   // Çıkış fonksiyonu
   const handleLogout = async () => {
     await signOut(auth);
-    navigate("/"); // Oturumdan çıkınca anasayfaya yönlendir
+    navigate("/");
   };
 
   return (
@@ -107,7 +107,10 @@ function App() {
           <Route path="/my-lessons" element={<MyLessonsPage />} />
           <Route path="/my-exams" element={<MyExamsPage />} />
           <Route path="/create-exam" element={<CreateExamPage />} />
-          <Route path="/upload-video" element={<UploadVideoPage user={user} />} />
+          <Route
+            path="/upload-video"
+            element={<UploadVideoPage user={user} />}
+          />
           <Route path="/view-video" element={<ViewVideosPage role={role} />} />
           <Route path="/grades" element={<StudentGradesPage />} />
           <Route path="/student-performance" element={<StudentPerformance />} />

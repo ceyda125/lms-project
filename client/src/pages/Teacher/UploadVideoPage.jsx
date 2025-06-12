@@ -18,7 +18,10 @@ function UploadVideoPage({ user }) {
     formData.append("video", videoFile);
     formData.append("title", title);
     formData.append("description", description);
-    formData.append("uploaderName", user?.name || user?.displayName || "Bilinmiyor");
+    formData.append(
+      "uploaderName",
+      user?.name || user?.displayName || "Bilinmiyor"
+    );
 
     setUploading(true);
 

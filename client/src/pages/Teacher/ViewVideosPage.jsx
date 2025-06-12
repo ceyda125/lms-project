@@ -1,4 +1,3 @@
-// src/pages/Teacher/ViewVideosPage.jsx
 import { useEffect, useState } from "react";
 
 function ViewVideosPage({ role }) {
@@ -15,13 +14,22 @@ function ViewVideosPage({ role }) {
   }, []);
 
   const handleDelete = async (filename) => {
-    if (!window.confirm(`${filename} adlı videoyu silmek istediğinize emin misiniz?`)) return;
+    if (
+      !window.confirm(
+        `${filename} adlı videoyu silmek istediğinize emin misiniz?`
+      )
+    )
+      return;
+
     try {
-      const res = await fetch(`http://localhost:5000/delete-video/${encodeURIComponent(filename)}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `http://localhost:5000/delete-video/${encodeURIComponent(filename)}`,
+        { method: "DELETE" }
+      );
+
       if (res.ok) {
-        setVideos((prev) => prev.filter((f) => f !== filename));
+        // Nesneyi filename’e bakarak çıkar
+        setVideos((prev) => prev.filter((v) => v.filename !== filename));
       } else {
         alert("Silme işlemi başarısız oldu.");
       }
@@ -35,22 +43,30 @@ function ViewVideosPage({ role }) {
   return (
     <div className="max-w-4xl mx-auto py-10">
       <h2 className="text-2xl font-bold mb-6 text-center">Videolar</h2>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {videos.map((filename) => (
-          <div key={filename} className="bg-white rounded-xl shadow p-5 flex flex-col">
+        {videos.map((video) => (
+          <div
+            key={video.filename}
+            className="bg-white rounded-xl shadow p-5 flex flex-col"
+          >
             <video
-              src={`http://localhost:5000/videos/${filename}`}
+              src={`http://localhost:5000/videos/${video.filename}`}
               controls
               className="w-full rounded mb-4"
               style={{ maxHeight: "300px" }}
             />
-            <p>{filename}</p>
+
+            {/* Başlık varsa onu, yoksa dosya adını göster */}
+            <p className="font-medium">{video.title || video.filename}</p>
+
             <p className="text-sm text-gray-600 mt-1">
-              Yükleyen: {videos.find((video) => video.filename === filename)?.uploaderName || "Bilinmiyor"}
+              Yükleyen: {video.uploaderName}
             </p>
+
             {role === "teacher" && (
               <button
-                onClick={() => handleDelete(filename)}
+                onClick={() => handleDelete(video.filename)}
                 className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
               >
                 Sil

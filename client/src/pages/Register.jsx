@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth , db} from "../firebase/firebaseConfig";
+import { auth, db } from "../firebase/firebaseConfig";
 import { useNavigate, Link } from "react-router-dom";
 import { doc, setDoc, collection, getDocs } from "firebase/firestore";
 import { LockClosedIcon } from "@heroicons/react/solid";

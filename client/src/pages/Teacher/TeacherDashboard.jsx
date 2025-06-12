@@ -15,7 +15,7 @@ function TeacherDashboard({ user }) {
   const navigate = useNavigate();
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     const currentUserId = user?.uid || auth.currentUser?.uid;
     if (!currentUserId) {
