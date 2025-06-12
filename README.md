@@ -3,7 +3,7 @@
 Bu proje, öğretmenlerin ve öğrencilerin çevrim içi dersleri yönetebildiği modern, bulut tabanlı bir Eğitim Yönetim Sistemi (LMS)'dir.
 
 Proje, [Create React App](https://github.com/facebook/create-react-app) ile başlatılmıştır. 
-Frontend için **React**, veritabanı ve kimlik doğrulama işlemleri için **Firebase**, video yüklemeleri için ise **AWS S3** kullanılmaktadır.
+Frontend için **React**, veritabanı ve kimlik doğrulama işlemleri için **Firebase**, video yüklemeleri için ise **Node.js** tabanlı bir backend kullanılmaktadır.
 
 ## Özellikler
 
