@@ -25,6 +25,16 @@ function StudentDashboard() {
           </Link>
 
           <Link
+            to="/view-video"
+            className="flex flex-col items-center justify-center p-6 bg-indigo-50 rounded-xl shadow hover:shadow-lg transition cursor-pointer"
+          >
+            <VideoCameraIcon className="w-12 h-12 text-indigo-600 mb-3" />
+            <span className="text-indigo-800 font-semibold text-lg text-center">
+              Videoları Görüntüle
+            </span>
+          </Link>
+
+          <Link
             to="/exams"
             className="flex flex-col items-center justify-center p-6 bg-indigo-50 rounded-xl shadow hover:shadow-lg transition cursor-pointer"
           >

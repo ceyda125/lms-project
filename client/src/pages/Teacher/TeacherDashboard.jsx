@@ -15,7 +15,7 @@ function TeacherDashboard({ user }) {
   const navigate = useNavigate();
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     const currentUserId = user?.uid || auth.currentUser?.uid;
     if (!currentUserId) {
@@ -60,6 +60,16 @@ function TeacherDashboard({ user }) {
             to="/create-exam"
             icon={<CogIcon className="w-7 h-7 text-indigo-600" />}
             label="Sınav Oluştur"
+          />
+          <DashboardLink
+            to="/upload-video"
+            icon={<CogIcon className="w-7 h-7 text-indigo-600" />}
+            label="Video Yükle"
+          />
+          <DashboardLink
+            to="/view-video"
+            icon={<CogIcon className="w-7 h-7 text-indigo-600" />}
+            label="Videoları Görüntüle"
           />
           <DashboardLink
             to="/student-performance"

@@ -14,8 +14,10 @@ import CreateLesson from "./pages/Teacher/CreateLesson";
 import StudentPerformance from "./pages/Teacher/StudentPerformance";
 import LiveLesson from "./pages/LiveLesson";
 import Layout from "./components/Layout";
-import LiveLessonsPage from "./pages/Student/LiveLessonsPage"; // eklenen yeni sayfa
+import LiveLessonsPage from "./pages/Student/LiveLessonsPage";
 import CreateExamPage from "./pages/Teacher/CreateExamPage";
+import UploadVideoPage from "./pages/Teacher/UploadVideoPage";
+import ViewVideosPage from "./pages/Teacher/ViewVideosPage";
 import StudentExamList from "./pages/Student/StudentExamList";
 import TakeExam from "./pages/Student/TakeExam";
 import MyExamsPage from "./pages/Teacher/MyExamsPage";
@@ -102,19 +104,16 @@ function App() {
             path="/take-classic-exam/:examId"
             element={<TakeClassicExamPage />}
           />
-
           <Route path="/my-lessons" element={<MyLessonsPage />} />
           <Route path="/my-exams" element={<MyExamsPage />} />
-
           <Route path="/create-exam" element={<CreateExamPage />} />
-
+          <Route path="/upload-video" element={<UploadVideoPage user={user} />} />
+          <Route path="/view-video" element={<ViewVideosPage role={role} />} />
           <Route path="/grades" element={<StudentGradesPage />} />
-
           <Route path="/student-performance" element={<StudentPerformance />} />
           <Route path="/live-lessons" element={<LiveLessonsPage />} />
           <Route path="/exams" element={<StudentExamList />} />
           <Route path="/take-exam/:examId" element={<TakeExam />} />
-
           <Route
             path="/create-lesson"
             element={

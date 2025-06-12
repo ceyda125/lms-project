@@ -9,8 +9,11 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.9.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
     "firebase": "^11.7.1",
     "lucide-react": "^0.511.0",
+    "multer": "^2.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.6.0",
@@ -45,5 +48,10 @@
     "autoprefixer": "^10.4.21",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.4.17"
-  }
+  },
+  "description": "Bu proje, öğretmenlerin ve öğrencilerin çevrim içi dersleri yönetebildiği modern, bulut tabanlı bir Eğitim Yönetim Sistemi (LMS)'dir.",
+  "main": "postcss.config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
