@@ -20,6 +20,6 @@ Frontend için **React**, veritabanı ve kimlik doğrulama işlemleri için **Fi
 - **Firebase** – Kimlik doğrulama, veritabanı ve gerçek zamanlı veri takibi
 - **Jitsi Meet** – Canlı dersler için video konferans altyapısı (isteğe bağlı)
 - **TailwindCSS / CSS Modules** – Stil yönetimi
-
+- **Node.js & Express** – Backend API ve video yönetimi
 ---
 
